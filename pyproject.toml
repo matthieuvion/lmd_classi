@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "lmd-classi"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+jupyterlab = "^4.0.9"
+setfit = "^1.0.1"
+ipywidgets = "^8.1.1"
+protobuf = "^4.25.1"
+optuna = "^3.5.0"
+matplotlib = "^3.8.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
