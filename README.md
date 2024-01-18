@@ -6,10 +6,10 @@
 
 ### Things you might re-use (repo guide)
 ---
-`0_lmd_setfit_best_model.ipynb` : train the best performing model. Setfit + LogisticRegression with custom params & optimized hyperparameters.  
-`1_optional_lmd_setfit_torch_head.ipynb`: experiment using a differentiable (torch) head.  
-`2_optional_lmd_setfitt_XGB_OOM.ipynb`: experiment using a GradientBoosting head and a custom class to prevent out-of-memory errors.  
-`3_lmd_setfit_hyperparameters_opti.ipynb`: hyperparameters optimization using Optuna. From +-63% to 69,1% accuracy.  
+`0_train_best_model.ipynb` : train best performing architecture / model and save to HF Hub.  
+`1_hyperparameters_optimization.py`: hyperparameters optimization using Optuna.    
+`example_hpo_randomforest.py`: experiment hyperparameters optimization using a custom head (rf).  
+`example_train_torch_head.py`: experiment using a differentiable (torch NN) head.  
 
 ### Architecture/model experiments, HPO
 ---
