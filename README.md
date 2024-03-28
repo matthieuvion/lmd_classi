@@ -1,5 +1,5 @@
 <div align="center">
-  <h2>Classifier(s) pro-russian comments on Le Monde</h2>
+  <h2>Comments classifier - from LLM fine-tuning to e5-base embeddings </h2>
   <p align="center">
     <a href="https://www.kaggle.com/amadevs/code"><img src="https://img.shields.io/badge/Kaggle-20BEFF?style=flat&logo=Kaggle&logoColor=white" alt="Kaggle Badge"/></a>
     <a href="https://huggingface.co/gentilrenard"><img src="https://img.shields.io/badge/HuggingFace-black?style=flat&logo=huggingface&logoColor=white" alt="HuggingFace Badge"/></a>
@@ -7,45 +7,57 @@
 </div>
 <br/>
 
-Following my [previous work](https://github.com/matthieuvion/lmd_viz) on people's engagement about Ukraine War, decided to manually annotate around 300 comments (out of 180k) and train a clf to check pro-russian comments activity level.  
-
-We first experimented w/ a few shots model (SetFit) but there goes the rabbit hole. We ended-up doing synthetic data generation in order to fine-tune a Mistral LLM for classification (json / label generation).  
-
-Our end goal being deployment/performance, we then extend our initial dataset to around 20k samples (LLM as predictor) and train a multi-e5-base clf on our "synthetic data" while retaining a sufficient amount of accuracy with 10x less latency.
+Following my [previous work](https://github.com/matthieuvion/lmd_viz) on people's engagement about Ukraine War, decided to manually annotate around 300 comments (out of 180k) and train a clf to assess pro-russian comments opinion weight.
+We first experimented w/ a few shots model (SetFit) but there goes the rabbit hole.  
+Decided we would share things we learned in the form of runnable (16gb VRAM) notebooks. Models, dataset, notebooks are fully re-usable.
 
 ## Tldr; give me the notebooks
 
-Everything's runnable on Kaggle T40/P100 and should work on Colab too.
+Everything's runnable on Kaggle T40/P100 (+-16gb VRAM) and should work on Colab too.
 
-| Notebook | Description | Ressource |
-|----------|-------------|----------|
-| xx | xx | Open in [Kaggle]()|
+| Notebook | Description | Resource |
+|--------------------------------------|-----------------------------------------------------------------------------|----------|
+| lmd_setfit_modeling_logistic_head | Baseline model - few shots clf using SetFit | Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-setfit-modeling-logistic-head) |
+| lmd_mistral_synthetic_gen_testprompt | Synthetic data - prepare dataset - prompts tests Mistral-7B OpenHermes / Alpaca | Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-gen-testprompt) |
+| lmd_mistral_synthetic_gen_run        | Synthetic data - run (2k samples) | Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-gen-run) |
+| lmd_mistral_synthetic_fine_tune      | Fine-tuning Mistral-7B-base for classification on synthetic data using Unsloth (Qlora)| Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-fine-tune) |
+| lmd_setfit_mistral_evaluation        | Benchmark SetFit / fine-tuned Mistral, several experiments | Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-setfit-mistral-evaluation) |
+| lmd_setfit_mistral_inference         | Augment dataset - voting ensemble SetFit + ft Mistral to predict 20k unlabeled comments| Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-setfit-mistral-inference) |
+| lmd_multi-e5_train                   | multi-e5/bge embeddings + nn classifier on augmented dataset | Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-multi-e5-train) |
+| e5_onnx_optimization                 | multi-e5 - ONNX conversion & optimization/quantization | Open in [Kaggle](https://www.kaggle.com/code/amadevs/e5-onnx-optimization) |
+| lmd_e5_evaluation                    | Benchmark all models - focus on global, minority class and inference latency | Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-e5-evaluation) |
 
-## Detailed guide & notes
+## Detailed notes
 
 ### Baseline model (SetFit)
 
-| Notebook | Description | Ressource |
-|----------|-------------|----------|
-| xx | xx | Open in [Kaggle]()|
+| Notebook | Description | Resource |
+|--------------------------------------|-----------------------------------------------------------------------------|----------|
+| lmd_setfit_modeling_logistic_head | Baseline model - few shots clf using SetFit | Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-setfit-modeling-logistic-head) |
 
-### Synthetic data generation
 
-| Notebook | Description | Ressource |
-|----------|-------------|----------|
-| xx | xx | Open in [Kaggle]()|
+### Synthetic data generation (Mistral / Alpaca)
 
-### Fine-tuning on a classification task
+| Notebook | Description | Resource |
+|--------------------------------------|-----------------------------------------------------------------------------|----------|
+| lmd_mistral_synthetic_gen_testprompt | Synthetic data - prepare dataset - prompts tests Mistral-7B OpenHermes / Alpaca | Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-gen-testprompt) |
+| lmd_mistral_synthetic_gen_run        | Synthetic data - run (2k samples) | Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-gen-run) |
 
-| Notebook | Description | Ressource |
-|----------|-------------|----------|
-| xx | xx | Open in [Kaggle]()|
+### LLM fine-tuning on a classification task
 
-### Reduce cost: nn classifier w/ e5-base embeddings, quantize
+| Notebook | Description | Resource |
+|--------------------------------------|-----------------------------------------------------------------------------|----------|
+| lmd_mistral_synthetic_fine_tune      | Fine-tuning Mistral-7B-base for classification on synthetic data using Unsloth (Qlora)| Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-fine-tune) |
+| lmd_setfit_mistral_evaluation        | Benchmark SetFit / fine-tuned Mistral, several experiments | Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-setfit-mistral-evaluation) |
 
-| Notebook | Description | Ressource |
-|----------|-------------|----------|
-| xx | xx | Open in [Kaggle]()|
+### Can we train a "standard" classifier on the augmented dataset ?
+
+| Notebook | Description | Resource |
+|--------------------------------------|-----------------------------------------------------------------------------|----------|
+| lmd_setfit_mistral_inference         | Augment dataset - voting ensemble SetFit + ft Mistral to predict 20k unlabeled comments| Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-setfit-mistral-inference) |
+| lmd_multi-e5_train                   | multi-e5/bge embeddings + nn classifier on augmented dataset | Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-multi-e5-train) |
+| e5_onnx_optimization                 | multi-e5 - ONNX conversion & optimization/quantization | Open in [Kaggle](https://www.kaggle.com/code/amadevs/e5-onnx-optimization) |
+| lmd_e5_evaluation                    | Benchmark all models - focus on global, minority class and inference latency | Open in [Kaggle](https://www.kaggle.com/code/amadevs/lmd-e5-evaluation) |
 
 ## Ressources & links
 
