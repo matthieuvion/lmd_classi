@@ -10,13 +10,15 @@
 <div align="center">
 <em>End to end benchmark on comments classification with SetFit vs. fine-tuned Mistral-7b vs. multi-e5-base + clf layer.  
 
-Fully reproducible guide w/ shareable online notebooks, model(s), dataset.</em>
+Fully reproducible guide w/ online notebooks, model(s), dataset.</em>
 </div><br>
 
-> [!NOTE]
-> Following my previous [work](https://github.com/matthieuvion/lmd_viz) on people's engagement with the Ukraine War, I > decided to manually annotate approximately 300 comments (out of 180k) and train a classifier to assess the opinion weight of pro-Russian comments. We initially experimented with a few-shot learning model (SetFit), but then we found ourselves going down the rabbit hole.<br><br>
+> [!NOTE]  
+> Following my previous [work](https://github.com/matthieuvion/lmd_viz) on people's engagement with the Ukraine War, I > decided to manually annotate approximately 300 comments (out of 180k) and train a classifier to assess the weight of pro-Russian comments. We initially experimented with a few-shot learning model (SetFit), but then we found ourselves going down the rabbit hole.   
 
-## Tldr; steps, notebooks
+<br>
+
+## Tldr; online notebooks
 
 Should work on Google Colab too, maybe with a few adaptations for fine-tuning with `Unsloth`.
 
@@ -33,40 +35,51 @@ Should work on Google Colab too, maybe with a few adaptations for fine-tuning wi
 | lmd_e5_evaluation                    | Benchmark all models - focus on global, minority class and inference latency | [notebook](https://www.kaggle.com/code/amadevs/lmd-e5-evaluation)
 
 
-## Detailed notes
+## Detailed guide
 
 ### Baseline : few shots learning with Huggingface/SetFit
+
+- Three labels 0. support to Ukraine, 1. (rather) support Russia 2. off topic / no opinion.
+- Initial seed (annotated data) was labeled with `label studio` : around 400 samples with 'oversampling' on the minority class to capture enough information :
+- Overall (obvious/direct) support for Russia is rare (+- 10%), and Le Monde subscribers love to digress (2 is vast majority).
+- We used our Faiss index / vector search previously built to retrieve enough "pro russian" comments among the 180k we scrapped, along with random exploration.
+- We tried many optimizations on the few shot model `SetFit` (not shared here): # labels, grid search, different heads.
+- Compared to sample size, a very good performance (76% accuracy) & deployablility (5ms latency) but not satisfied with performance on our class of interest (pro-russian comments).
 
 | Notebook | Description | Resource |
 |--------------------------------------|-----------------------------------------------------------------------------|----------|
 | lmd_setfit_modeling_logistic_head | Baseline model - few shots clf using SetFit | [notebook](https://www.kaggle.com/code/amadevs/lmd-setfit-modeling-logistic-head)
 
-> [!NOTE]
-> - todo
-> - dd
-
-d
-
 
 ### Synthetic data generation (Mistral-OpenHermes)
+
+- Goal : augment our initial, manually annotated seed, with synthetic data so we can fine-tune a LLM to perform classification.
+- Room for improvement : efforts on prompting (context + examples + lot of tests), but still had to throw 40% of comments eventually. But manual (random) review showed good enough results : credible comments with right ssociated label.
 
 | Notebook | Description | Resource |
 |--------------------------------------|-----------------------------------------------------------------------------|----------|
 | lmd_mistral_synthetic_gen_testprompt | Synthetic data gen - prepare dataset - prompts tests Mistral-7B-OpenHermes | [notebook](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-gen-testprompt) |
 | lmd_mistral_synthetic_gen_run        | Synthetic data gen - run (output : 2k synthetic samples) | [notebook](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-gen-run)
 
-todo desc
 
-### LLM fine-tuning : json output with predicted class label
+### Mistral-7B-base fine-tuning (using `Unsloth`): outputs json with predicted class label
+
+- We are *not* using LLM embeddings with a classification layer. Instead we fine-tune our model with annotated + synthetic data so it predicts a label {label:0} or {label:1} our {label:2} given a prompt (isntruction + comment).
+- Our Alpaca-like template showed good performance with Mistral-7b base v0.1 (no improvement with recently released v0.2).
+- LLM as a predictor shows very good accuracy (80%) and most importantly performs well on our minority class.
+- We could use it to extend our dataset ? We have nearly 180k unlabeled comments that could be used to train a standard classifier!
 
 | Notebook | Description | Resource |
 |--------------------------------------|-----------------------------------------------------------------------------|----------|
 | lmd_mistral_synthetic_fine_tune      | Fine-tuning Mistral-7B-base for classi. (output: json label) w/ synth. data, using Unsloth (Qlora), Alpaca template | [notebook](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-fine-tune) |
 | lmd_setfit_mistral_evaluation        | Benchmark SetFit / fine-tuned Mistral (several experiments) | [notebook](https://www.kaggle.com/code/amadevs/lmd-setfit-mistral-evaluation)
 
-to do desc
+### Multi-e5-base embeddings based clf. ONNX & latency optim.
+- End goal : retain enough accuracy while lowering inference time (900ms for fine-tuned LLM).
+- Train a classifier on top of multi-e5-embeddins (tested m3-bge as well). Several dataset composition tried (synthetic data and/or llm-predicted labels and/or initial seed).
+- Our accuracy is good enough, especially on minority class, considering we trained on 20k synthetic/llm-predicted data.
+- Final model is converted to ONNX, quantized & optimized -> 80ms avg latency.
 
-### Train a "standard" classifier on the augmented dataset for better latency.
 
 | Notebook | Description | Resource |
 |--------------------------------------|-----------------------------------------------------------------------------|----------|
@@ -74,8 +87,6 @@ to do desc
 | lmd_multi-e5_train                   | multi-e5/bge embeddings + nn classifier on augmented dataset (several experiments) | [notebook](https://www.kaggle.com/code/amadevs/lmd-multi-e5-train) |
 | e5_onnx_optimization                 | multi-e5 - ONNX conversion & optimization/quantization | [notebook](https://www.kaggle.com/code/amadevs/e5-onnx-optimization) |
 | lmd_e5_evaluation                    | Benchmark all models - focus on global, minority class and inference latency | [notebook](https://www.kaggle.com/code/amadevs/lmd-e5-evaluation)
-
-to do desc
 
 
 ## Ressources & links
