@@ -11,13 +11,14 @@
 <em>End to end benchmark on comments classification with SetFit vs. fine-tuned Mistral-7b vs. multi-e5-base + clf layer.  
 
 Fully reproducible guide w/ shareable online notebooks, model(s), dataset.</em>
-</div>  
-<br>
-Following my previous [work](https://github.com/matthieuvion/lmd_viz) on people's engagement with the Ukraine War, I decided to manually annotate approximately 300 comments (out of 180k) and train a classifier to assess the opinion weight of pro-Russian comments. We initially experimented with a few-shot learning model (SetFit), but then we found ourselves going down the rabbit hole.<br><br>
+</div><br>
 
-### Tldr; steps, notebooks
+> [!NOTE]
+> Following my previous [work](https://github.com/matthieuvion/lmd_viz) on people's engagement with the Ukraine War, I > decided to manually annotate approximately 300 comments (out of 180k) and train a classifier to assess the opinion weight of pro-Russian comments. We initially experimented with a few-shot learning model (SetFit), but then we found ourselves going down the rabbit hole.<br><br>
 
-Should work on Colab too, maybe with a few adaptations for fine-tuning with Unsloth.
+## Tldr; steps, notebooks
+
+Should work on Google Colab too, maybe with a few adaptations for fine-tuning with `Unsloth`.
 
 | Notebook | Description | Resource |
 |--------------------------------------|-----------------------------------------------------------------------------|----------|
@@ -39,7 +40,12 @@ Should work on Colab too, maybe with a few adaptations for fine-tuning with Unsl
 | Notebook | Description | Resource |
 |--------------------------------------|-----------------------------------------------------------------------------|----------|
 | lmd_setfit_modeling_logistic_head | Baseline model - few shots clf using SetFit | [notebook](https://www.kaggle.com/code/amadevs/lmd-setfit-modeling-logistic-head)
-todo desc
+
+> [!NOTE]
+> - todo
+> - dd
+
+d
 
 
 ### Synthetic data generation (Mistral-OpenHermes)
@@ -48,6 +54,7 @@ todo desc
 |--------------------------------------|-----------------------------------------------------------------------------|----------|
 | lmd_mistral_synthetic_gen_testprompt | Synthetic data gen - prepare dataset - prompts tests Mistral-7B-OpenHermes | [notebook](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-gen-testprompt) |
 | lmd_mistral_synthetic_gen_run        | Synthetic data gen - run (output : 2k synthetic samples) | [notebook](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-gen-run)
+
 todo desc
 
 ### LLM fine-tuning : json output with predicted class label
@@ -56,6 +63,7 @@ todo desc
 |--------------------------------------|-----------------------------------------------------------------------------|----------|
 | lmd_mistral_synthetic_fine_tune      | Fine-tuning Mistral-7B-base for classi. (output: json label) w/ synth. data, using Unsloth (Qlora), Alpaca template | [notebook](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-fine-tune) |
 | lmd_setfit_mistral_evaluation        | Benchmark SetFit / fine-tuned Mistral (several experiments) | [notebook](https://www.kaggle.com/code/amadevs/lmd-setfit-mistral-evaluation)
+
 to do desc
 
 ### Train a "standard" classifier on the augmented dataset for better latency.
@@ -66,6 +74,7 @@ to do desc
 | lmd_multi-e5_train                   | multi-e5/bge embeddings + nn classifier on augmented dataset (several experiments) | [notebook](https://www.kaggle.com/code/amadevs/lmd-multi-e5-train) |
 | e5_onnx_optimization                 | multi-e5 - ONNX conversion & optimization/quantization | [notebook](https://www.kaggle.com/code/amadevs/e5-onnx-optimization) |
 | lmd_e5_evaluation                    | Benchmark all models - focus on global, minority class and inference latency | [notebook](https://www.kaggle.com/code/amadevs/lmd-e5-evaluation)
+
 to do desc
 
 
