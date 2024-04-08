@@ -14,7 +14,7 @@ Fully reproducible guide w/ online notebooks, model(s), dataset.</em>
 </div><br>
 
 > [!NOTE]  
-> Following my previous [work](https://github.com/matthieuvion/lmd_viz) on people's engagement with the Ukraine War, I > decided to manually annotate approximately 300 comments (out of 180k) and train a classifier to assess the weight of pro-Russian comments. We initially experimented with a few-shot learning model (SetFit), but then we found ourselves going down the rabbit hole.   
+> Following my previous [work](https://github.com/matthieuvion/lmd_viz) on people's engagement with the Ukraine War, I decided to manually annotate approximately 300 comments (out of 180k) and train a classifier to assess the weight of pro-Russian comments. We initially experimented with a few-shot learning model (SetFit), but then we found ourselves going down the rabbit hole.   
 
 <br>
 
