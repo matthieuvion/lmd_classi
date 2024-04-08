@@ -14,25 +14,31 @@ Fully reproducible guide w/ online notebooks, model(s), dataset.</em>
 </div><br>
 
 > [!NOTE]  
-> Following my previous [work](https://github.com/matthieuvion/lmd_viz) on people's engagement with the Ukraine War, I decided to manually annotate approximately 300 comments (out of 180k) and train a classifier to assess the weight of pro-Russian comments. We initially experimented with a few-shot learning model (SetFit), but then we found ourselves going down the rabbit hole.   
-
+> Following my previous [work](https://github.com/matthieuvion/lmd_viz) on people's engagement with the Ukraine War, I decided to manually annotate approximately 400 comments (out of 180k) and train a classifier to assess the weight of pro-Russian comments. We initially experimented with a few-shot learning model (SetFit), but then we found ourselves going down the rabbit hole.   
 <br>
 
-## Tldr; online notebooks
+## Learnings
+**Baseline model - SetFit:** very good performance (and latency...) for a few shots learning approach. After many trials, final choice was mpnet embeddings + had to extend to 90 labels per class (3 classes : 1. pro Ukraine, 2. pro Russia, 3. off topic/no opinion) + logistic head, to have a good accuracy. Anything lower (16, 32 etc.) wouldn't be enough.  
+**Mistral-7B Fine Tuning:** a well crafted prompt + 2K samples synthetic generation (with OpenHermes) was enough to fine-tune a Mistral-7B with 81% accuracy and a notable --better, performance on our class of interest (1: pro-Russia comments). Unsurprisingly, LLM shows it amazing power to apprehend (some of) the human subtleties.  
+**Classifier training on augmented dataset:** I was eager to know if we could train a more "classic" classifier on an extended share of our initial dataset. 20k unlabeled comments were labeled using a voting ensemble SetFit + our fine-tuned Mistral-7B and used to train our classifier on top of `multi-e5-base` embeddings (vs. `BGE` and `multi-e5-small`). We tried many training data combinations (train size and/our 2k synthetic sample and/our 5-20k predicted data added), best performance was achieved with a weighted loss + only the 20k ensemble-predicted labels, without the 2k synthetic examples. Still perform better than our baseline on class 1.  
+**Model Optimization**: e5-based classifier is converted to ONNX and then optimized + quantized. We retain 98% accuracy of the base e5 model, while shrinking the model size to 266Mb (instead of 1Gb) and doing x1,9 on our inference latency (180ms vs. 90ms). Performs slightly worse than our fine-tuned LLM but the latency gain is huge! (800ms vs. 90ms).
 
-Should work on Google Colab too, maybe with a few adaptations for fine-tuning with `Unsloth`.
+## Tldr; organized notebooks
+
+- Notebooks should work on Google Colab too, maybe with a few adaptations for fine-tuning with `Unsloth` (libs install).  
+- Dataset ([here](https://huggingface.co/datasets/gentilrenard/lmd_ukraine_comments))  , LLM LoRa adapters ([here](https://huggingface.co/gentilrenard/Mistral-7B-lora-lmd-en)) and final multi-e5-base ONNX model ([here](https://huggingface.co/gentilrenard/multi-e5-base_lmd-comments_q8_onnx)) are available on HuggingFace.
 
 | Notebook | Description | Resource |
 |--------------------------------------|-----------------------------------------------------------------------------|----------|
 | lmd_setfit_modeling_logistic_head | Baseline model - few shots clf using SetFit | [notebook](https://www.kaggle.com/code/amadevs/lmd-setfit-modeling-logistic-head) |
 | lmd_mistral_synthetic_gen_testprompt | Synthetic data gen - prepare dataset - prompts tests Mistral-7B-OpenHermes | [notebook](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-gen-testprompt) |
 | lmd_mistral_synthetic_gen_run        | Synthetic data gen - run (output : 2k synthetic samples) | [notebook](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-gen-run) |
-| lmd_mistral_synthetic_fine_tune      | Fine-tuning Mistral-7B-base for classi. (output: json label) w/ synth. data, using Unsloth (Qlora), Alpaca template | [notebook](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-fine-tune) |
+| lmd_mistral_synthetic_fine_tune      | Fine-tuning Mistral-7B-base for classi. (output: json label) from synthetic data, using Unsloth (Qlora), Alpaca template | [notebook](https://www.kaggle.com/code/amadevs/lmd-mistral-synthetic-fine-tune) |
 | lmd_setfit_mistral_evaluation        | Benchmark SetFit / fine-tuned Mistral (several experiments) | [notebook](https://www.kaggle.com/code/amadevs/lmd-setfit-mistral-evaluation) |
 | lmd_setfit_mistral_inference         | Augment original dataset - voting ensemble SetFit + f-tuned LLM to infer 20k unlabeled comments| [notebook](https://www.kaggle.com/code/amadevs/lmd-setfit-mistral-inference) |
 | lmd_multi-e5_train                   | multi-e5/bge embeddings + nn classifier on augmented dataset (several experiments) | [notebook](https://www.kaggle.com/code/amadevs/lmd-multi-e5-train) |
 | e5_onnx_optimization                 | multi-e5 - ONNX conversion & optimization/quantization | [notebook](https://www.kaggle.com/code/amadevs/e5-onnx-optimization) |
-| lmd_e5_evaluation                    | Benchmark all models - focus on global, minority class and inference latency | [notebook](https://www.kaggle.com/code/amadevs/lmd-e5-evaluation)
+| lmd_e5_evaluation                    | Benchmark all models - focus on global accuracy, minority class accuracy and inference latency | [notebook](https://www.kaggle.com/code/amadevs/lmd-e5-evaluation)
 
 
 ## Detailed guide
@@ -44,7 +50,7 @@ Should work on Google Colab too, maybe with a few adaptations for fine-tuning wi
 - Overall (obvious/direct) support for Russia is rare (+- 10%), and Le Monde subscribers love to digress (2 is vast majority).
 - We used our Faiss index / vector search previously built to retrieve enough "pro russian" comments among the 180k we scrapped, along with random exploration.
 - We tried many optimizations on the few shot model `SetFit` (not shared here): # labels, grid search, different heads.
-- Compared to sample size, a very good performance (76% accuracy) & deployablility (5ms latency) but not satisfied with performance on our class of interest (pro-russian comments).
+- Compared to sample size, a very good performance (78% accuracy) & deployablility (5ms latency) but not satisfied with performance on our class of interest (pro-russian comments).
 
 | Notebook | Description | Resource |
 |--------------------------------------|-----------------------------------------------------------------------------|----------|
@@ -66,7 +72,7 @@ Should work on Google Colab too, maybe with a few adaptations for fine-tuning wi
 
 - We are *not* using LLM embeddings with a classification layer. Instead we fine-tune our model with annotated + synthetic data so it predicts a label {label:0} or {label:1} our {label:2} given a prompt (isntruction + comment).
 - Our Alpaca-like template showed good performance with Mistral-7b base v0.1 (no improvement with recently released v0.2).
-- LLM as a predictor shows very good accuracy (80%) and most importantly performs well on our minority class.
+- LLM as a predictor shows very good accuracy (81%) and most importantly performs well on our minority class.
 - We could use it to extend our dataset ? We have nearly 180k unlabeled comments that could be used to train a standard classifier!
 
 | Notebook | Description | Resource |
