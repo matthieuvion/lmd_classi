@@ -16,6 +16,9 @@ Fully reproducible guide w/ online notebooks, model(s), dataset.</em>
 > [!NOTE]  
 > Following my previous [work](https://github.com/matthieuvion/lmd_viz) on people's engagement with the Ukraine War, I decided to manually annotate approximately 400 comments (out of 180k) and train a classifier to assess the weight of pro-Russian comments. We initially experimented with a few-shot learning model (SetFit), but then we found ourselves going down the rabbit hole.   
 <br>
+<div align="center">
+<img src="https://github.com/matthieuvion/lmd_classi/blob/main/lmd_classi/data/lmd_overall_accuracy.png" width="600" alt="benchmark Mistral vs. multi-e5 vs. SetFit">
+</div>
 
 ## Learnings
 **Baseline model - SetFit:** very good performance (and latency...) for a few shots learning approach. After many trials, final choice was mpnet embeddings + had to extend to 90 labels per class (3 classes : 1. pro Ukraine, 2. pro Russia, 3. off topic/no opinion) + logistic head, to have a good accuracy. Anything lower (16, 32 etc.) wouldn't be enough.  
@@ -26,7 +29,12 @@ Fully reproducible guide w/ online notebooks, model(s), dataset.</em>
 
 **Model Optimization**: e5-based classifier is converted to ONNX and then optimized + quantized. We retain 98% accuracy of the base e5 model, while shrinking the model size to 266Mb (instead of 1Gb) and doing x1,9 on our inference latency (180ms vs. 90ms). Performs slightly worse than our fine-tuned LLM but the latency gain is huge! (800ms vs. 90ms).  
 
-<img src="https://github.com/matthieuvion/lmd_classi/blob/main/lmd_classi/data/lmd_overall_accuracy.png" width="700" alt="benchmark">
+| Model | Size | Accuracy (%) | F1, class 1 (pro Russia) | Latency (ms) |
+|--|--|--|--|--|
+|SetFit (logistic head)|n/a|78|58|10|
+|Fine-Tuned Mistral-7B|13-4Gb|81|74|800|
+|multi-e5-base|1Gb|79|70|180|
+|Quantized ONNX multi-e5-base|266Mb|78|69|90|
 
 
 ## Tldr; organized notebooks
