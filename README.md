@@ -19,9 +19,13 @@ Fully reproducible guide w/ online notebooks, model(s), dataset.</em>
 
 ## Learnings
 **Baseline model - SetFit:** very good performance (and latency...) for a few shots learning approach. After many trials, final choice was mpnet embeddings + had to extend to 90 labels per class (3 classes : 1. pro Ukraine, 2. pro Russia, 3. off topic/no opinion) + logistic head, to have a good accuracy. Anything lower (16, 32 etc.) wouldn't be enough.  
+
 **Mistral-7B Fine Tuning:** a well crafted prompt + 2K samples synthetic generation (with OpenHermes) was enough to fine-tune a Mistral-7B with 81% accuracy and a notable --better, performance on our class of interest (1: pro-Russia comments). Unsurprisingly, LLM shows it amazing power to apprehend (some of) the human subtleties.  
+
 **Classifier training on augmented dataset:** I was eager to know if we could train a more "classic" classifier on an extended share of our initial dataset. 20k unlabeled comments were labeled using a voting ensemble SetFit + our fine-tuned Mistral-7B and used to train our classifier on top of `multi-e5-base` embeddings (vs. `BGE` and `multi-e5-small`). We tried many training data combinations (train size and/our 2k synthetic sample and/our 5-20k predicted data added), best performance was achieved with a weighted loss + only the 20k ensemble-predicted labels, without the 2k synthetic examples. Still perform better than our baseline on class 1.  
-**Model Optimization**: e5-based classifier is converted to ONNX and then optimized + quantized. We retain 98% accuracy of the base e5 model, while shrinking the model size to 266Mb (instead of 1Gb) and doing x1,9 on our inference latency (180ms vs. 90ms). Performs slightly worse than our fine-tuned LLM but the latency gain is huge! (800ms vs. 90ms).
+
+**Model Optimization**: e5-based classifier is converted to ONNX and then optimized + quantized. We retain 98% accuracy of the base e5 model, while shrinking the model size to 266Mb (instead of 1Gb) and doing x1,9 on our inference latency (180ms vs. 90ms). Performs slightly worse than our fine-tuned LLM but the latency gain is huge! (800ms vs. 90ms).  
+
 
 ## Tldr; organized notebooks
 
