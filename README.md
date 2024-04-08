@@ -26,7 +26,7 @@ Fully reproducible guide w/ online notebooks, model(s), dataset.</em>
 
 **Model Optimization**: e5-based classifier is converted to ONNX and then optimized + quantized. We retain 98% accuracy of the base e5 model, while shrinking the model size to 266Mb (instead of 1Gb) and doing x1,9 on our inference latency (180ms vs. 90ms). Performs slightly worse than our fine-tuned LLM but the latency gain is huge! (800ms vs. 90ms).  
 
-<img src="[path_to_your_image.png](https://github.com/matthieuvion/lmd_classi/blob/main/lmd_classi/data/lmd_overall_accuracy.png)" width="700" alt="benchmark">
+<img src="https://github.com/matthieuvion/lmd_classi/blob/main/lmd_classi/data/lmd_overall_accuracy.png" width="700" alt="benchmark">
 
 
 ## Tldr; organized notebooks
