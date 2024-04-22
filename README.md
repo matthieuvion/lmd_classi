@@ -1,5 +1,5 @@
 <div align="center">
-  <h2>Classification - from LLM fine-tuning to quantized e5 embeddings </h2>
+  <h2>Classification - from LLM fine-tuning to quantized ONNX (e5-base embeddings) </h2>
   <p align="center">
     <a href="https://www.kaggle.com/amadevs/code"><img src="https://img.shields.io/badge/Kaggle-20BEFF?style=flat&logo=Kaggle&logoColor=white" alt="Kaggle Badge"/></a>
     <a href="https://huggingface.co/gentilrenard"><img src="https://img.shields.io/badge/HuggingFace-black?style=flat&logo=huggingface&logoColor=white" alt="HuggingFace Badge"/></a>
