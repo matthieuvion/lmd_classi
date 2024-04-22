@@ -33,6 +33,7 @@ Fully reproducible guide w/ online notebooks, model(s), dataset.</em>
 |--|--|--|--|--|
 |SetFit (logistic head)|n/a|78|58|10|
 |Fine-Tuned Mistral-7B|13-4Gb|81|74|800|
+|Fine-Tuned Llama3-8B|13-4Gb|80|77|800|
 |multi-e5-base|1Gb|79|70|180|
 |Quantized ONNX multi-e5-base|266Mb|78|69|90|
 
