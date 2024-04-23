@@ -14,7 +14,8 @@ Fully reproducible guide w/ online notebooks, model(s), dataset.</em>
 </div><br>
 
 > [!NOTE]  
-> Following my previous [work](https://github.com/matthieuvion/lmd_viz) on people's engagement with the Ukraine War, I decided to manually annotate approximately 400 comments (out of 180k) and train a classifier to assess the weight of pro-Russian comments. We initially experimented with a few-shot learning model (SetFit), but then we found ourselves going down the rabbit hole.   
+> Following my previous [work](https://github.com/matthieuvion/lmd_viz) on people's engagement with the Ukraine War, I decided to manually annotate approximately 400 comments (out of 180k) and train a classifier to assess the weight of pro-Russian comments. We initially experimented with a few-shot learning model (SetFit), but then we found ourselves going down the rabbit hole.
+> Update 2024/04/22 : also check Docker+FastAPI serving app [here](https://github.com/matthieuvion/lmd-fastapi-docker)
 <br>
 <div align="center">
 <img src="https://github.com/matthieuvion/lmd_classi/blob/main/lmd_classi/data/lmd_overall_accuracy.png" width="600" alt="benchmark Mistral vs. multi-e5 vs. SetFit">
